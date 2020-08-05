@@ -1,5 +1,7 @@
 # `tensorflow_proto`
 
+![Continuous Integration](https://github.com/cpcloud/tensorflow_proto/workflows/Continuous%20Integration/badge.svg)
+
 `tensorflow_proto` is a shortish `build.rs` script that uses `prost-build` to
 generate Rust `struct`s that can be used in serialization/deserialization of protocol buffers
 wherever tensorflow uses them.
