@@ -28,6 +28,20 @@ jobs:
           path: tensorflow
           fetch-depth: 1
 
+      - name: Get clippy
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+          components: clippy
+
+      - name: Run clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
+
       - name: Toolchain
         uses: actions-rs/toolchain@v1
         with:
