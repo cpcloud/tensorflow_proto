@@ -28,6 +28,9 @@ jobs:
           path: tensorflow
           fetch-depth: 1
 
+      - name: Set proto source environment variable
+        run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
+
       - name: Get clippy
         uses: actions-rs/toolchain@v1
         with:
@@ -55,9 +58,6 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-
-      - name: Set proto source environment variable
-        run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
 
       - name: Build
         uses: actions-rs/cargo@v1
