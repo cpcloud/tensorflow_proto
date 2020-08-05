@@ -21,6 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Check out tensorflow
+        uses: actions/checkout@v2
+        with:
+          repository: tensorflow/tensorflow
+          ref: v1.15.2
+          path: tensorflow
+          fetch-depth: 1
+
       - name: Toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -40,9 +48,13 @@ jobs:
         with:
           command: build
           args: --all-features --all-targets
+          env:
+            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
 
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features --all-targets
+          env:
+            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
