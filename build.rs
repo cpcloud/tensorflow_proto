@@ -18,15 +18,9 @@ impl fmt::Display for ModMap {
         if let Some(ref include) = self.include {
             writeln!(f, r#"include!("{}");"#, include)?;
         }
-        write!(
-            f,
-            "{}",
-            self.children
-                .values()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .join("\n")
-        )?;
+        for value in self.children.values() {
+            writeln!(f, "{}", value)?;
+        }
         write!(f, "}}")
     }
 }
@@ -112,18 +106,16 @@ fn main() -> Result<()> {
         }
     }
 
-    std::fs::OpenOptions::new()
+    let mut file = std::fs::OpenOptions::new()
         .create(true)
         .truncate(true)
         .write(true)
-        .open(out_dir.join(GENERATED_FILE_NAME))?
-        .write_all(
-            root.values()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .join("\n")
-                .as_bytes(),
-        )?;
+        .open(out_dir.join(GENERATED_FILE_NAME))?;
+
+    for (module, value) in root.iter() {
+        writeln!(file, "{}", value)
+            .with_context(|| format!("failed to write module: {}", module))?;
+    }
 
     Ok(())
 }
