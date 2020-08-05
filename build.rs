@@ -2,8 +2,10 @@ use anyhow::{anyhow, Context, Result};
 use std::{collections::HashMap, fmt, io::Write, path::PathBuf};
 use walkdir::WalkDir;
 
-const DEFAULT_PROTO_FILE_EXT: &str = "proto";
 const GENERATED_FILE_NAME: &str = "tensorflow_proto_gen.rs";
+const TENSORFLOW_PROTO_SOURCE: &str = env!("TENSORFLOW_PROTO_SOURCE");
+const DEFAULT_PROTO_FILE_EXT: &str = "proto";
+const PROTO_FILE_EXT: Option<&str> = option_env!("PROTO_FILE_EXT");
 
 struct ModMap {
     name: String,
@@ -13,8 +15,7 @@ struct ModMap {
 
 impl fmt::Display for ModMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "pub mod {}", self.name)?;
-        writeln!(f, " {{ ")?;
+        writeln!(f, "pub mod {} {{", self.name)?;
         if let Some(ref include) = self.include {
             writeln!(f, r#"include!("{}");"#, include)?;
         }
@@ -28,11 +29,8 @@ impl fmt::Display for ModMap {
 fn main() -> Result<()> {
     // collect the files in the schemas directory (and subdirectories) into a vec and separately
     // keep a list of directories encountered
-    let source = std::env::var("TENSORFLOW_PROTO_SOURCE")
-        .with_context(|| "TENSORFLOW_PROTO_SOURCE not defined")?;
-    let suffix =
-        std::env::var("PROTO_FILE_EXT").unwrap_or_else(|_| DEFAULT_PROTO_FILE_EXT.to_owned());
-    let (schema_files, schema_directories) = WalkDir::new(source.clone())
+    let suffix = PROTO_FILE_EXT.unwrap_or(DEFAULT_PROTO_FILE_EXT);
+    let (schema_files, schema_directories) = WalkDir::new(TENSORFLOW_PROTO_SOURCE.clone())
         .follow_links(true)
         .into_iter()
         .try_fold((vec![], vec![]), |mut containers, result_entry| {
@@ -40,7 +38,7 @@ fn main() -> Result<()> {
             let (ref mut files, ref mut directories) = containers;
             if entry.file_type().is_dir() {
                 directories.push(entry.into_path());
-            } else if entry.path().to_string_lossy().ends_with(&suffix) {
+            } else if entry.path().to_string_lossy().ends_with(suffix) {
                 files.push(entry.into_path());
             }
             Ok::<_, anyhow::Error>(containers)
@@ -55,7 +53,7 @@ fn main() -> Result<()> {
     }
 
     if !schema_files.is_empty() {
-        prost_build::compile_protos(&schema_files, &[source.into()])?;
+        prost_build::compile_protos(&schema_files, &[TENSORFLOW_PROTO_SOURCE.into()])?;
     }
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
