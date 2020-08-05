@@ -16,7 +16,7 @@ impl fmt::Display for ModMap {
         write!(f, "pub mod {}", self.name)?;
         writeln!(f, " {{ ")?;
         if let Some(ref include) = self.include {
-            writeln!(f, r#"include!("./{}");"#, include)?;
+            writeln!(f, r#"include!("{}");"#, include)?;
         }
         write!(
             f,
