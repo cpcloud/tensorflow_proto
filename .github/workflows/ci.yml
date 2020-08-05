@@ -42,8 +42,8 @@ jobs:
           command: fmt
           args: --all -- --check
 
-      - name: Set proto source
-        run: echo "::set-output TENSORFLOW_PROTO_SOURCE=$GITHUB_WORKSPACE/tensorflow"
+      - name: Set proto source environment variable
+        run: echo "::set-env TENSORFLOW_PROTO_SOURCE=$GITHUB_WORKSPACE/tensorflow"
 
       - name: Build
         uses: actions-rs/cargo@v1
