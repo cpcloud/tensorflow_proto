@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     // collect the files in the schemas directory (and subdirectories) into a vec and separately
     // keep a list of directories encountered
     let suffix = PROTO_FILE_EXT.unwrap_or(DEFAULT_PROTO_FILE_EXT);
-    let (schema_files, schema_directories) = WalkDir::new(TENSORFLOW_PROTO_SOURCE.clone())
+    let (schema_files, schema_directories) = WalkDir::new(TENSORFLOW_PROTO_SOURCE)
         .follow_links(true)
         .into_iter()
         .try_fold((vec![], vec![]), |mut containers, result_entry| {
