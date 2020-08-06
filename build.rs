@@ -27,8 +27,7 @@ impl fmt::Display for ModMap {
 }
 
 fn main() -> Result<()> {
-    // collect the files in the schemas directory (and subdirectories) into a vec and separately
-    // keep a list of directories encountered
+    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
     let suffix = PROTO_FILE_EXT.unwrap_or(DEFAULT_PROTO_FILE_EXT);
     let (schema_files, schema_directories) = WalkDir::new(TENSORFLOW_PROTO_SOURCE)
         .follow_links(true)
@@ -55,8 +54,6 @@ fn main() -> Result<()> {
     if !schema_files.is_empty() {
         prost_build::compile_protos(&schema_files, &[TENSORFLOW_PROTO_SOURCE.into()])?;
     }
-
-    let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
 
     let mut root = HashMap::new();
     for result_entry in glob::glob(&out_dir.join("*.rs").display().to_string())? {
