@@ -17,17 +17,18 @@ pub fn into_bytes(msg: impl prost::Message) -> Result<Vec<u8>, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::tensorflow;
-    use prost::Message;
+    use super::{into_bytes, tensorflow};
 
     #[test]
     fn gpu_options() {
-        let mut bytes = vec![];
-        let gpu_options = tensorflow::GpuOptions {
-            allow_growth: true,
+        let config_proto = tensorflow::ConfigProto {
+            gpu_options: Some(tensorflow::GpuOptions {
+                allow_growth: true,
+                ..Default::default()
+            }),
             ..Default::default()
         };
-        gpu_options.encode(&mut bytes).unwrap();
+        let bytes = into_bytes(config_proto).unwrap();
         assert!(!bytes.is_empty());
     }
 }
