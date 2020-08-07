@@ -3,6 +3,13 @@ name = "tensorflow_proto"
 version = "0.1.0"
 authors = ["Phillip Cloud <cloud@standard.ai>"]
 edition = "2018"
+description = "Rust structs for Tensorflow Protocol buffers."
+license-file = "LICENSE"
+# documentation = ""
+homepage = "https://github.com/cpcloud/tensorflow_proto"
+repository = "https://github.com/cpcloud/tensorflow_proto"
+keywords = ["tensorflow", "protobuf", "config"]
+readme = "README.md"
 
 [dependencies]
 protobuf = "2"
