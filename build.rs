@@ -3,8 +3,8 @@ use std::{collections::HashMap, fmt, io::Write, path::PathBuf};
 use walkdir::WalkDir;
 
 const GENERATED_FILE_NAME: &str = "tensorflow_proto_gen.rs";
-const TENSORFLOW_PROTO_SOURCE: &str = env!("TENSORFLOW_PROTO_SOURCE");
-const DEFAULT_PROTO_FILE_EXT: &str = "proto";
+const TENSORFLOW_PROTO_SOURCE: Option<&str> = option_env!("TENSORFLOW_PROTO_SOURCE");
+const DEFAULT_PROTO_FILE_EXT: &str = ".proto";
 const PROTO_FILE_EXT: Option<&str> = option_env!("PROTO_FILE_EXT");
 
 struct ModMap {
@@ -29,7 +29,10 @@ impl fmt::Display for ModMap {
 fn main() -> Result<()> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
     let suffix = PROTO_FILE_EXT.unwrap_or(DEFAULT_PROTO_FILE_EXT);
-    let (schema_files, schema_directories) = WalkDir::new(TENSORFLOW_PROTO_SOURCE)
+    let source = TENSORFLOW_PROTO_SOURCE
+        .map(PathBuf::from)
+        .unwrap_or_else(|| "./proto".into());
+    let (schema_files, schema_directories) = WalkDir::new(source.clone())
         .follow_links(true)
         .into_iter()
         .try_fold((vec![], vec![]), |mut containers, result_entry| {
@@ -52,7 +55,7 @@ fn main() -> Result<()> {
     }
 
     if !schema_files.is_empty() {
-        prost_build::compile_protos(&schema_files, &[TENSORFLOW_PROTO_SOURCE.into()])?;
+        prost_build::compile_protos(&schema_files, &[source])?;
     }
 
     let mut root = HashMap::new();
