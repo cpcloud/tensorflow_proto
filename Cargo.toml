@@ -5,20 +5,18 @@ authors = ["Phillip Cloud <cloud@standard.ai>"]
 edition = "2018"
 description = "Rust structs for Tensorflow Protocol buffers."
 license-file = "LICENSE"
-# documentation = ""
+documentation = "https://docs.rs/tensorflow_proto"
 homepage = "https://github.com/cpcloud/tensorflow_proto"
 repository = "https://github.com/cpcloud/tensorflow_proto"
 keywords = ["tensorflow", "protobuf", "config"]
 readme = "README.md"
 
 [dependencies]
-protobuf = "2"
 prost = "0.6.1"
 prost-types = "0.6.1"
 thiserror = "1.0.20"
 
 [build-dependencies]
 prost-build = "0.6.1"
-walkdir = "2.3.1"
 anyhow = "1.0.32"
 glob = "0.3.0"
