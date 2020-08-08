@@ -34,7 +34,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
           env:
-            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
+            TENSORFLOW_PROTO_SOURCE: "$GITHUB_WORKSPACE/tensorflow"
 
       - name: Toolchain
         uses: actions-rs/toolchain@v1
@@ -62,7 +62,7 @@ jobs:
           command: build
           args: --all-features --all-targets
           env:
-            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
+            TENSORFLOW_PROTO_SOURCE: "$GITHUB_WORKSPACE/tensorflow"
 
       - name: Test
         uses: actions-rs/cargo@v1
@@ -70,4 +70,4 @@ jobs:
           command: test
           args: --all-features --all-targets
           env:
-            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
+            TENSORFLOW_PROTO_SOURCE: "$GITHUB_WORKSPACE/tensorflow"
