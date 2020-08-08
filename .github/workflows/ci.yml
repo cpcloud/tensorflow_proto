@@ -28,22 +28,13 @@ jobs:
           path: tensorflow
           fetch-depth: 1
 
-      - name: Set proto source environment variable
-        run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
-
-      - name: Get clippy
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-          components: clippy
-
       - name: Run clippy
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
+          env:
+            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
 
       - name: Toolchain
         uses: actions-rs/toolchain@v1
@@ -59,14 +50,24 @@ jobs:
           command: fmt
           args: --all -- --check
 
+      - name: Build without TENSORFLOW_PROTO_SOURCE defined
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --all-features --all-targets
+
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
           args: --all-features --all-targets
+          env:
+            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
 
       - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features --all-targets
+          env:
+            TENSORFLOW_PROTO_SOURCE: $GITHUB_WORKSPACE/tensorflow
