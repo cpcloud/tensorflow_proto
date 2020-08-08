@@ -35,31 +35,25 @@ jobs:
         if: ${{ matrix.use_env }}
         run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
 
-      - name: Run clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
-
       - name: Toolchain
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
-          components: rustfmt
+          components: rustfmt, clippy
+
+      - name: Run clippy
+        uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
 
       - name: Format
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --all-features --all-targets
 
       - name: Test
         uses: actions-rs/cargo@v1
