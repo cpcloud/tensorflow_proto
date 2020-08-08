@@ -1,6 +1,6 @@
 [package]
 name = "tensorflow_proto"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Phillip Cloud <cloud@standard.ai>"]
 edition = "2018"
 description = "Rust structs for Tensorflow Protocol buffers."
