@@ -15,6 +15,7 @@ readme = "README.md"
 prost = "0.6.1"
 prost-types = "0.6.1"
 thiserror = "1.0.20"
+serde = { version = "1", features = ["derive"], optional = true }
 
 [build-dependencies]
 prost-build = "0.6.1"
