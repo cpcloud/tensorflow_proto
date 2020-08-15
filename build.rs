@@ -17,37 +17,6 @@ const DEFAULT_PROTO_FILE_EXT: &str = ".proto";
 // The environment variable referring to the protocol buffer file extension
 const PROTO_FILE_EXT: Option<&str> = option_env!("PROTO_FILE_EXT");
 
-/// List of all types that we want to serde-ify.
-///
-/// When the boolean is `true` we also apply `#[serde(default)]` to allow users freedom of not
-/// having to specify every single option exhaustively.
-const SERDE_TYPES: &[(bool, &str)] = &[
-    (false, ".tensorflow.AttrValue"),
-    (false, "tensorflow.NameAttrList"),
-    (false, ".tensorflow.ResourceHandleProto"),
-    (false, "tensorflow.SessionMetadata"),
-    (false, "tensorflow.TensorProto"),
-    (false, ".tensorflow.TensorShapeProto"),
-    (false, "tensorflow.VariantTensorDataProto"),
-    (true, "tensorflow.AutoParallelOptions"),
-    (true, "tensorflow.ClusterDef"),
-    (true, "tensorflow.ConfigProto"),
-    (true, "tensorflow.ConfigProto.Experimental"),
-    (true, "tensorflow.GPUOptions"),
-    (true, "tensorflow.GPUOptions.Experimental"),
-    (true, "tensorflow.GPUOptions.Experimental.VirtualDevices"),
-    (true, "tensorflow.GraphOptions"),
-    (true, "tensorflow.JobDef"),
-    (true, "tensorflow.OptimizerOptions"),
-    (true, "tensorflow.RewriterConfig"),
-    (true, "tensorflow.RewriterConfig.CustomGraphOptimizer"),
-    (true, "tensorflow.RPCOptions"),
-    (true, "tensorflow.ScopedAllocatorOptions"),
-    (true, "tensorflow.ThreadPoolOptionProto"),
-    (true, "tensorflow.VerifierConfig"),
-    // List is could be more complete...
-];
-
 struct ModMap {
     name: String,
     include: Option<String>,
@@ -77,12 +46,6 @@ fn file_name(path: impl AsRef<std::path::Path>) -> Result<String> {
         .to_owned())
 }
 
-fn serde_attributes(config: &mut prost_build::Config, name: &'static str, is_struct: bool) {
-    config.type_attribute(name, "#[derive(serde::Deserialize, serde::Serialize)]");
-    if is_struct {
-        config.type_attribute(name, "#[serde(default)]");
-    }
-}
 fn main() -> Result<()> {
     let out_dir = PathBuf::from(std::env::var("OUT_DIR")?);
     let suffix = PROTO_FILE_EXT.unwrap_or(DEFAULT_PROTO_FILE_EXT);
@@ -102,14 +65,14 @@ fn main() -> Result<()> {
     }
 
     if !schema_files.is_empty() {
-        let mut config = prost_build::Config::new();
-        config.out_dir(&out_dir);
-        if std::env::var_os("CARGO_FEATURE_SERDE").is_some() {
-            for (is_struct, serde_type) in &SERDE_TYPES[..] {
-                serde_attributes(&mut config, serde_type, *is_struct);
-            }
+        let mut cfg = prost_build::Config::new();
+        cfg.out_dir(&out_dir).compile_well_known_types();
+
+        if std::env::var_os("CARGO_FEATURE_SERDE_DERIVE").is_some() {
+            cfg.type_attribute(".", "#[tensorflow_proto_derive::serde_default_viable]");
         }
-        config.compile_protos(&schema_files, &[source])?;
+
+        cfg.compile_protos(&schema_files, &[source])?;
     }
 
     let mut root = HashMap::new();

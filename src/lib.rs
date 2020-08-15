@@ -2,7 +2,6 @@
 //!
 //! This library exposes protocol buffers from Tensorflow in the form of Rust structs, to allow end
 //! users to consume and produce them.
-
 #![allow(clippy::large_enum_variant)]
 include!(concat!(env!("OUT_DIR"), "/tensorflow_proto_gen.rs"));
 
@@ -15,24 +14,59 @@ pub enum Error {
 }
 
 /// Serialize a protobuf message into a vector of bytes.
-///
-/// # Examples
-///
-/// ```rust
-/// use tensorflow_proto::{tensorflow, into_bytes};
-///
-/// let config_proto = tensorflow::ConfigProto {
-///     gpu_options: Some(tensorflow::GpuOptions {
-///         allow_growth: true,
-///         ..Default::default()
-///     }),
-///     ..Default::default()
-/// };
-/// let bytes = into_bytes(config_proto).unwrap();
-/// assert!(!bytes.is_empty());
-/// ```
 pub fn into_bytes(msg: impl prost::Message) -> Result<Vec<u8>, Error> {
     let mut bytes = vec![];
     msg.encode(&mut bytes).map_err(Error::Encode)?;
     Ok(bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{into_bytes, tensorflow};
+
+    #[cfg(feature = "serde-derive")]
+    mod serde {
+        use crate::tensorflow;
+
+        #[test]
+        fn test_serde_roundtrip() {
+            let config_proto = tensorflow::ConfigProto {
+                gpu_options: Some(tensorflow::GpuOptions {
+                    allow_growth: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            };
+            let js = serde_json::to_string(&config_proto).unwrap();
+            let result: tensorflow::ConfigProto = serde_json::from_str(&js).unwrap();
+            assert_eq!(config_proto, result);
+        }
+
+        #[test]
+        fn test_deser_with_defaults() {
+            let config_proto = tensorflow::ConfigProto {
+                gpu_options: Some(tensorflow::GpuOptions {
+                    allow_growth: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            };
+            let js = r#"{"gpu_options": {"allow_growth": true}}"#;
+            let result: tensorflow::ConfigProto = serde_json::from_str(js).unwrap();
+            assert_eq!(config_proto, result);
+        }
+    }
+
+    #[test]
+    fn test_into_bytes() {
+        let config_proto = tensorflow::ConfigProto {
+            gpu_options: Some(tensorflow::GpuOptions {
+                allow_growth: true,
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let bytes = into_bytes(config_proto).unwrap();
+        assert!(!bytes.is_empty());
+    }
 }
