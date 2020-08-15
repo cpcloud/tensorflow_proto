@@ -65,14 +65,14 @@ fn main() -> Result<()> {
     }
 
     if !schema_files.is_empty() {
-        prost_build::Config::new()
-            .out_dir(&out_dir)
-            .compile_well_known_types()
-            .type_attribute(
-                ".",
-                "#[derive(tensorflow_proto_derive::SerdeDefaultViable)]",
-            )
-            .compile_protos(&schema_files, &[source])?;
+        let mut cfg = prost_build::Config::new();
+        cfg.out_dir(&out_dir).compile_well_known_types();
+
+        if std::env::var("CARGO_FEATURE_SERDE_DERIVE").is_ok() {
+            cfg.type_attribute(".", "#[tensorflow_proto_derive::serde_default_viable]");
+        }
+
+        cfg.compile_protos(&schema_files, &[source])?;
     }
 
     let mut root = HashMap::new();

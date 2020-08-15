@@ -1,72 +1,27 @@
-extern crate proc_macro;
-
 use proc_macro::TokenStream;
-use syn::DeriveInput;
+use syn::{
+    visit_mut::{self, VisitMut},
+    DeriveInput,
+};
 
-#[proc_macro_derive(SerdeDefaultViable)]
-pub fn derive_it(input: TokenStream) -> TokenStream {
-    let ast = syn::parse_macro_input!(input as DeriveInput);
-    let name = ast.ident.clone();
+struct PrefixItemStruct;
 
-    match syn::Item::from(ast) {
-        syn::Item::Struct(_) => {
-            quote::quote! {
-                paste::paste! {
-                    #[derive(Default, Clone, serde::Deserialize, serde::Serialize)]
-                    #[serde(transparent, default)]
-                    struct [<Serde #name>] {
-                        inner: #name
-                    }
+impl VisitMut for PrefixItemStruct {
+    fn visit_derive_input_mut(&mut self, node: &mut syn::DeriveInput) {
+        node.attrs
+            .push(syn::parse_quote!(#[derive(serde::Deserialize, serde::Serialize)]));
 
-                    impl<'de> serde::Deserialize<'de> for #name {
-                        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-                        where
-                            D: serde::Deserializer<'de> {
-                            Ok([<Serde #name>]::deserialize(deserializer)?.inner)
-                        }
-                    }
-
-                    impl serde::Serialize for #name {
-                        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                        where
-                            S: serde::Serializer,
-                        {
-                            let outer = [<Serde #name>] { inner: self.clone() };
-                            outer.serialize(serializer)
-                        }
-                    }
-                }
-            }
+        if let syn::Data::Struct(_) = node.data {
+            node.attrs.push(syn::parse_quote!(#[serde(default)]));
         }
-        syn::Item::Enum(_) => {
-            quote::quote! {
-                paste::paste! {
-                    #[derive(Clone, serde::Deserialize, serde::Serialize)]
-                    #[serde(transparent)]
-                    struct [<Serde #name>](#name);
 
-                    impl<'de> serde::Deserialize<'de> for #name {
-                        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-                        where
-                            D: serde::Deserializer<'de> {
-                            Ok([<Serde #name>]::deserialize(deserializer)?.0)
-                        }
-                    }
-
-                    impl serde::Serialize for #name {
-                        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-                        where
-                            S: serde::Serializer,
-                        {
-                            use serde::Serialize;
-                            let outer = [<Serde #name>](self.clone());
-                            outer.serialize(serializer)
-                        }
-                    }
-                }
-            }
-        }
-        _ => quote::quote!(),
+        visit_mut::visit_derive_input_mut(self, node);
     }
-    .into()
+}
+
+#[proc_macro_attribute]
+pub fn serde_default_viable(_attr: TokenStream, input: TokenStream) -> TokenStream {
+    let mut item = syn::parse_macro_input!(input as DeriveInput);
+    PrefixItemStruct.visit_derive_input_mut(&mut item);
+    quote::quote!(#item).into()
 }
