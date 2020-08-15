@@ -1,8 +1,5 @@
 use proc_macro::TokenStream;
-use syn::{
-    visit_mut::{self, VisitMut},
-    DeriveInput,
-};
+use syn::visit_mut::{self, VisitMut};
 
 struct PrefixItemStruct;
 
@@ -21,7 +18,7 @@ impl VisitMut for PrefixItemStruct {
 
 #[proc_macro_attribute]
 pub fn serde_default_viable(_attr: TokenStream, input: TokenStream) -> TokenStream {
-    let mut item = syn::parse_macro_input!(input as DeriveInput);
+    let mut item = syn::parse_macro_input!(input);
     PrefixItemStruct.visit_derive_input_mut(&mut item);
     quote::quote!(#item).into()
 }
