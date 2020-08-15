@@ -3,9 +3,9 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use syn::visit_mut::{self, VisitMut};
 
-struct PrefixItemStruct;
+struct SerdeDefaultViable;
 
-impl VisitMut for PrefixItemStruct {
+impl VisitMut for SerdeDefaultViable {
     fn visit_derive_input_mut(&mut self, node: &mut syn::DeriveInput) {
         node.attrs
             .push(syn::parse_quote!(#[derive(serde::Deserialize, serde::Serialize)]));
@@ -21,6 +21,6 @@ impl VisitMut for PrefixItemStruct {
 #[proc_macro_attribute]
 pub fn serde_default_viable(_attr: TokenStream, input: TokenStream) -> TokenStream {
     let mut item = syn::parse_macro_input!(input);
-    PrefixItemStruct.visit_derive_input_mut(&mut item);
+    SerdeDefaultViable.visit_derive_input_mut(&mut item);
     quote::quote!(#item).into()
 }
