@@ -68,7 +68,7 @@ fn main() -> Result<()> {
         let mut cfg = prost_build::Config::new();
         cfg.out_dir(&out_dir).compile_well_known_types();
 
-        if std::env::var("CARGO_FEATURE_SERDE_DERIVE").is_ok() {
+        if std::env::var_os("CARGO_FEATURE_SERDE_DERIVE").is_some() {
             cfg.type_attribute(".", "#[tensorflow_proto_derive::serde_default_viable]");
         }
 
