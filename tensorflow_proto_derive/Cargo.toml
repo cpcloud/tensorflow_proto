@@ -1,0 +1,12 @@
+[package]
+name = "tensorflow_proto_derive"
+version = "0.1.0"
+authors = ["Phillip Cloud <cloud@standard.ai>"]
+edition = "2018"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "1.0.38", features = ["full", "visit-mut", "derive"] }
+quote = "1.0.7"

@@ -8,14 +8,15 @@ license-file = "LICENSE"
 documentation = "https://docs.rs/tensorflow_proto"
 homepage = "https://github.com/cpcloud/tensorflow_proto"
 repository = "https://github.com/cpcloud/tensorflow_proto"
-keywords = ["tensorflow", "protobuf", "config"]
+keywords = ["tensorflow", "protobuf", "config", "serde"]
 readme = "README.md"
 
 [dependencies]
 prost = "0.6.1"
-prost-types = "0.6.1"
 thiserror = "1.0.20"
-serde = { version = "1", features = ["derive"], optional = true }
+serde = { version = "1", features = ["derive"] }
+tensorflow_proto_derive = { path = "./tensorflow_proto_derive" }
+paste = "1.0.0"
 
 [build-dependencies]
 prost-build = "0.6.1"
