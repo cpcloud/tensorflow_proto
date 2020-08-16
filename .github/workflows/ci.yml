@@ -25,13 +25,13 @@ jobs:
           # because prost requires all protos to have a package declaration.
           - rust: stable
             use_upstream_tensorflow: true
-            tensorflow_version: v2.0.0
+            tensorflow_version: v2.0.2
           - rust: beta
             use_upstream_tensorflow: true
-            tensorflow_version: v2.0.0
+            tensorflow_version: v2.0.2
           - rust: nightly
             use_upstream_tensorflow: true
-            tensorflow_version: v2.0.0
+            tensorflow_version: v2.0.2
 
     steps:
       - name: Checkout
