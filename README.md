@@ -11,7 +11,7 @@ wherever tensorflow uses them.
 In particular, this is useful in rust/tensorflow library when calling `SessionOptions::set_config`
 to configure different parts of tensorflow.
 
-**Note**: **This crate is only tested against tensorflow 1.15.2.**
+**Note**: **This crate is tested against tensorflow 1.15.2 and 2.0.0.**
 
 # Usage
 
