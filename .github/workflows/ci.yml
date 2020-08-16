@@ -66,6 +66,7 @@ jobs:
 
       - name: Run clippy
         uses: actions-rs/clippy-check@v1
+        if: ${{ !matrix.use_upstream_tensorflow }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
