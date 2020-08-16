@@ -15,9 +15,23 @@ jobs:
           - stable
           - beta
           - nightly
-        use_env:
+        use_upstream_tensorflow:
           - true
-          - false
+        tensorflow_version:
+          - v1.15.2
+          - v1.15.3
+          - v2.0.0
+          - v2.0.1
+          - v2.0.2
+        include:
+          # v2.1.0 introduces a protobuf "import public" that prost doesn't work with
+          # because prost requires all protos to have a package declaration.
+          - rust: stable
+            use_upstream_tensorflow: false
+          - rust: beta
+            use_upstream_tensorflow: false
+          - rust: nightly
+            use_upstream_tensorflow: false
 
     steps:
       - name: Checkout
@@ -25,14 +39,15 @@ jobs:
 
       - name: Check out tensorflow
         uses: actions/checkout@v2
+        if: ${{ matrix.use_upstream_tensorflow }}
         with:
           repository: tensorflow/tensorflow
-          ref: v1.15.2
+          ref: ${{ matrix.tensorflow_version }}
           path: tensorflow
           fetch-depth: 1
 
       - name: Set proto source environment variable
-        if: ${{ matrix.use_env }}
+        if: ${{ matrix.use_upstream_tensorflow }}
         run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
 
       - name: Toolchain
@@ -43,17 +58,18 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - name: Run clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
-
       - name: Format
         uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
+
+      - name: Run clippy
+        uses: actions-rs/clippy-check@v1
+        if: ${{ !matrix.use_upstream_tensorflow }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features --all-targets -- -Dclippy::all -Dunused_imports
 
       - name: Test
         uses: actions-rs/cargo@v1
