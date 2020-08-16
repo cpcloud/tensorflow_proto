@@ -17,21 +17,21 @@ jobs:
           - nightly
         use_upstream_tensorflow:
           - true
-          - false
         tensorflow_version:
           - v1.15.2
+          - v1.15.3
+          - v2.0.0
+          - v2.0.1
+          - v2.0.2
         include:
           # v2.1.0 introduces a protobuf "import public" that prost doesn't work with
           # because prost requires all protos to have a package declaration.
           - rust: stable
-            use_upstream_tensorflow: true
-            tensorflow_version: v2.0.2
+            use_upstream_tensorflow: false
           - rust: beta
-            use_upstream_tensorflow: true
-            tensorflow_version: v2.0.2
+            use_upstream_tensorflow: false
           - rust: nightly
-            use_upstream_tensorflow: true
-            tensorflow_version: v2.0.2
+            use_upstream_tensorflow: false
 
     steps:
       - name: Checkout
