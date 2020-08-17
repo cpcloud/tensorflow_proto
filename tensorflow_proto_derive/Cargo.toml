@@ -7,10 +7,15 @@ edition = "2018"
 [lib]
 proc-macro = true
 
+[features]
+convert = ["quote", "syn"]
+serde = ["quote", "syn"]
+
 [dependencies]
-quote = { version = "1.0.7", default-features = false }
+quote = { version = "1.0.7", default-features = false, optional = true }
 
 [dependencies.syn]
 version = "1.0.38"
 default-features = false
+optional = true
 features = ["derive", "parsing", "printing", "proc-macro", "visit-mut"]

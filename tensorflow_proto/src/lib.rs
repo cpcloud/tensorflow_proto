@@ -5,25 +5,8 @@
 #![allow(clippy::large_enum_variant)]
 include!(concat!(env!("OUT_DIR"), "/tensorflow_proto_gen.rs"));
 
-/// Error type for tensorflow_proto. This exists to avoid forcing users to explicitly depend on
-/// prost to use `into_bytes`.
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Failed to encode protobuf to bytes")]
-    Encode(#[source] prost::EncodeError),
-}
-
-/// Serialize a protobuf message into a vector of bytes.
-pub fn into_bytes(msg: impl prost::Message) -> Result<Vec<u8>, Error> {
-    let mut bytes = vec![];
-    msg.encode(&mut bytes).map_err(Error::Encode)?;
-    Ok(bytes)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{into_bytes, tensorflow};
-
     #[cfg(feature = "serde-derive")]
     mod serde {
         use crate::tensorflow;
@@ -57,16 +40,36 @@ mod tests {
         }
     }
 
-    #[test]
-    fn test_into_bytes() {
-        let config_proto = tensorflow::ConfigProto {
-            gpu_options: Some(tensorflow::GpuOptions {
-                allow_growth: true,
+    #[cfg(feature = "convert")]
+    mod convert {
+        use crate::tensorflow;
+        use std::convert::{TryFrom, TryInto};
+
+        #[test]
+        fn test_try_from_message() {
+            let config_proto = tensorflow::ConfigProto {
+                gpu_options: Some(tensorflow::GpuOptions {
+                    allow_growth: true,
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        };
-        let bytes = into_bytes(config_proto).unwrap();
-        assert!(!bytes.is_empty());
+            };
+            let bytes = Vec::try_from(&config_proto).unwrap();
+            assert!(!bytes.is_empty());
+        }
+
+        #[test]
+        fn test_try_into_bytes() {
+            let config_proto = tensorflow::ConfigProto {
+                gpu_options: Some(tensorflow::GpuOptions {
+                    allow_growth: true,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            };
+            let r = &config_proto;
+            let bytes: Vec<_> = r.try_into().unwrap();
+            assert!(!bytes.is_empty());
+        }
     }
 }

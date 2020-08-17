@@ -1,11 +1,11 @@
+#[cfg(any(feature = "serde", feature = "convert"))]
 extern crate proc_macro;
 
-use proc_macro::TokenStream;
-use syn::visit_mut::{self, VisitMut};
-
+#[cfg(feature = "serde")]
 struct SerdeDefaultViable;
 
-impl VisitMut for SerdeDefaultViable {
+#[cfg(feature = "serde")]
+impl syn::visit_mut::VisitMut for SerdeDefaultViable {
     fn visit_derive_input_mut(&mut self, node: &mut syn::DeriveInput) {
         node.attrs
             .push(syn::parse_quote!(#[derive(serde::Deserialize, serde::Serialize)]));
@@ -14,13 +14,44 @@ impl VisitMut for SerdeDefaultViable {
             node.attrs.push(syn::parse_quote!(#[serde(default)]));
         }
 
-        visit_mut::visit_derive_input_mut(self, node);
+        syn::visit_mut::visit_derive_input_mut(self, node);
     }
 }
 
+#[cfg(feature = "serde")]
 #[proc_macro_attribute]
-pub fn serde_default_viable(_attr: TokenStream, input: TokenStream) -> TokenStream {
+pub fn serde_default_viable(
+    _attr: proc_macro::TokenStream,
+    input: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    use syn::visit_mut::VisitMut;
+
     let mut item = syn::parse_macro_input!(input);
     SerdeDefaultViable.visit_derive_input_mut(&mut item);
     quote::quote!(#item).into()
+}
+
+#[cfg(feature = "convert")]
+#[proc_macro_derive(BytesTryConvertMessage)]
+pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    let item = syn::parse_macro_input!(input as syn::DeriveInput);
+    let ident = &item.ident;
+    if let syn::Data::Struct(_) = item.data {
+        quote::quote! {
+            impl std::convert::TryFrom<&#ident> for Vec<u8> {
+                type Error = prost::EncodeError;
+
+                fn try_from(message: &#ident) -> Result<Self, Self::Error> {
+                    use prost::Message;
+
+                    let mut bytes = vec![];
+                    message.encode(&mut bytes)?;
+                    Ok(bytes)
+                }
+            }
+        }
+    } else {
+        quote::quote!()
+    }
+    .into()
 }

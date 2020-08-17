@@ -72,6 +72,13 @@ fn main() -> Result<()> {
             cfg.type_attribute(".", "#[tensorflow_proto_derive::serde_default_viable]");
         }
 
+        if std::env::var_os("CARGO_FEATURE_CONVERT").is_some() {
+            cfg.type_attribute(
+                ".",
+                "#[derive(tensorflow_proto_derive::BytesTryConvertMessage)]",
+            );
+        }
+
         cfg.compile_protos(&schema_files, &[source])?;
     }
 

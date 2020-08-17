@@ -16,13 +16,13 @@ readme = "README.md"
 doctest = false
 
 [features]
-serde-derive = ["serde", "tensorflow_proto_derive"]
+serde-derive = ["serde", "tensorflow_proto_derive/serde"]
+convert = ["tensorflow_proto_derive/convert"]
 
 [dependencies]
 prost = { git = "https://github.com/danburkert/prost", rev = "a1cccbcee343e2c444e1cd2738c7fba2599fc391" }
 serde = { version = "1", features = ["derive"], optional = true }
 tensorflow_proto_derive = { version = "0.1.0" , path = "../tensorflow_proto_derive", optional = true }
-thiserror = "1.0.20"
 
 [build-dependencies]
 anyhow = "1.0.32"
