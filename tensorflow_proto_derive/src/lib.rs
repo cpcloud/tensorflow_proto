@@ -38,23 +38,15 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ident = &item.ident;
     if let syn::Data::Struct(_) = item.data {
         quote::quote! {
-            impl std::convert::TryFrom<#ident> for Vec<u8> {
+            impl std::convert::TryFrom<&#ident> for Vec<u8> {
                 type Error = prost::EncodeError;
 
-                fn try_from(message: #ident) -> Result<Self, Self::Error> {
+                fn try_from(message: &#ident) -> Result<Self, Self::Error> {
                     use prost::Message;
 
                     let mut bytes = vec![];
                     message.encode(&mut bytes)?;
                     Ok(bytes)
-                }
-            }
-
-            impl std::convert::TryFrom<Vec<u8>> for #ident {
-                type Error = prost::DecodeError;
-
-                fn try_from(bytes: Vec<u8>) -> Result<#ident, Self::Error> {
-                    prost::Message::decode(bytes.as_slice())
                 }
             }
         }

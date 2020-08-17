@@ -54,7 +54,7 @@ mod tests {
                 }),
                 ..Default::default()
             };
-            let bytes = Vec::try_from(config_proto).unwrap();
+            let bytes = Vec::try_from(&config_proto).unwrap();
             assert!(!bytes.is_empty());
         }
 
@@ -67,38 +67,9 @@ mod tests {
                 }),
                 ..Default::default()
             };
-            let bytes: Vec<_> = config_proto.try_into().unwrap();
+            let r = &config_proto;
+            let bytes: Vec<_> = r.try_into().unwrap();
             assert!(!bytes.is_empty());
-        }
-
-        #[test]
-        fn test_try_from_bytes() {
-            let config_proto = tensorflow::ConfigProto {
-                gpu_options: Some(tensorflow::GpuOptions {
-                    allow_growth: true,
-                    ..Default::default()
-                }),
-                ..Default::default()
-            };
-            let bytes = Vec::try_from(config_proto.clone()).unwrap();
-            assert_eq!(
-                tensorflow::ConfigProto::try_from(bytes).unwrap(),
-                config_proto
-            );
-        }
-
-        #[test]
-        fn test_try_into_message() {
-            let config_proto = tensorflow::ConfigProto {
-                gpu_options: Some(tensorflow::GpuOptions {
-                    allow_growth: true,
-                    ..Default::default()
-                }),
-                ..Default::default()
-            };
-            let bytes: Vec<_> = config_proto.clone().try_into().unwrap();
-            let message: tensorflow::ConfigProto = bytes.try_into().unwrap();
-            assert_eq!(message, config_proto);
         }
     }
 }
