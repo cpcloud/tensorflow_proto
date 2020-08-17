@@ -52,5 +52,5 @@ tensorflow_proto = { version = "0.2.0", features = ["convert"] }
 
 ## Use custom Tensorflow `*.proto` sources
 
-To use a different version of Tensorflow, define `TENSORFLOW_PROTO_SOURCE` to
-be the root of a Tensorflow source tree.
+To use a different version of Tensorflow protocol buffer sources, define
+`TENSORFLOW_PROTO_SOURCE` to be the root of a Tensorflow source tree.
