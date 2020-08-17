@@ -3,6 +3,12 @@ name = "tensorflow_proto_derive"
 version = "0.1.0"
 authors = ["Phillip Cloud <cloud@standard.ai>"]
 edition = "2018"
+description = "Procedural macros for tensorflow_proto"
+license-file = "../LICENSE"
+documentation = "https://docs.rs/tensorflow_proto"
+homepage = "https://github.com/cpcloud/tensorflow_proto"
+repository = "https://github.com/cpcloud/tensorflow_proto"
+keywords = ["tensorflow", "protobuf", "config", "serde", "macro"]
 
 [lib]
 proc-macro = true
