@@ -35,8 +35,8 @@ Serde support can be enabled using the `"serde-derive"` feature:
 tensorflow_proto = { version = "0.2.0", features = ["serde-derive"] }
 ```
 
-This will add a [`derive(serde::Serialize,
-serde::Deserialize)`](https://serde.rs/derive.html) to every generated
+This will add a [`#[derive(serde::Serialize,
+serde::Deserialize)]`](https://serde.rs/derive.html) to every generated
 `struct`.
 
 You must also depend on `serde` as well.
