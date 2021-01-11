@@ -48,7 +48,7 @@ jobs:
 
       - name: Set proto source environment variable
         if: ${{ matrix.use_upstream_tensorflow }}
-        run: echo "::set-env name=TENSORFLOW_PROTO_SOURCE::$GITHUB_WORKSPACE/tensorflow"
+        run: echo "TENSORFLOW_PROTO_SOURCE=$GITHUB_WORKSPACE/tensorflow" >> $GITHUB_ENV
 
       - name: Toolchain
         uses: actions-rs/toolchain@v1
